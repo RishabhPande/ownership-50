@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ofac50"
+version = "0.1.0"
+description = "Reference implementation of OFAC's 50 Percent Rule ownership arithmetic, tested against OFAC's published examples. A testing and teaching aid, not a compliance tool."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+dependencies = []
+
+[project.urls]
+Source = "https://github.com/RishabhPande/ownership-50"
+
+[tool.setuptools.packages.find]
+where = ["src"]
