@@ -1,0 +1,13 @@
+{
+  "description": "Unknown is not 'not blocked': X holds a known 40% of A and blocked person Y holds a stake of unknown size. The answer must be indeterminate with bounds, not a clean pass.",
+  "ofac_reference": "https://ofac.treasury.gov/faqs/401",
+  "blocked_persons": [
+    {"name": "X", "program": "example", "status": "blocked"},
+    {"name": "Y", "program": "example", "status": "blocked"}
+  ],
+  "stakes": [
+    {"owner": "X", "entity": "A", "pct": 40, "source": "analyst record"},
+    {"owner": "Y", "entity": "A", "pct": null, "source": "holding evidenced, size undisclosed"}
+  ],
+  "expected": {"X": "blocked", "Y": "blocked", "A": "indeterminate"}
+}
