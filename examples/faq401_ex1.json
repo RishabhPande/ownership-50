@@ -1,0 +1,10 @@
+{
+  "description": "FAQ 401 Example 1: X owns 50% of A, A owns 50% of B. OFAC: A and B are blocked. A naive path product gives B only 25%.",
+  "ofac_reference": "https://ofac.treasury.gov/faqs/401",
+  "blocked_persons": [{"name": "X", "program": "example", "status": "blocked"}],
+  "stakes": [
+    {"owner": "X", "entity": "A", "pct": 50, "source": "FAQ 401 example 1"},
+    {"owner": "A", "entity": "B", "pct": 50, "source": "FAQ 401 example 1"}
+  ],
+  "expected": {"X": "blocked", "A": "blocked", "B": "blocked"}
+}
