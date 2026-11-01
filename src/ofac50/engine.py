@@ -31,6 +31,8 @@ What this module refuses to hide:
   only as traceable as its data.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 
 THRESHOLD = 50.0
