@@ -1,0 +1,12 @@
+{
+  "description": "FAQ 401 Example 5: X owns 25% of A and 25% of B; A and B each own 50% of C. OFAC: nothing beyond X is blocked; neither A nor B is blocked, so no indirect ownership of C flows through them.",
+  "ofac_reference": "https://ofac.treasury.gov/faqs/401",
+  "blocked_persons": [{"name": "X", "program": "example", "status": "blocked"}],
+  "stakes": [
+    {"owner": "X", "entity": "A", "pct": 25, "source": "FAQ 401 example 5"},
+    {"owner": "X", "entity": "B", "pct": 25, "source": "FAQ 401 example 5"},
+    {"owner": "A", "entity": "C", "pct": 50, "source": "FAQ 401 example 5"},
+    {"owner": "B", "entity": "C", "pct": 50, "source": "FAQ 401 example 5"}
+  ],
+  "expected": {"X": "blocked", "A": "not_blocked", "B": "not_blocked", "C": "not_blocked"}
+}

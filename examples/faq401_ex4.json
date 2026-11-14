@@ -1,0 +1,12 @@
+{
+  "description": "FAQ 401 Example 4: X owns 50% of A and 25% of B; A and B each own 25% of C. OFAC: only A is blocked. B is not blocked, so B's 25% of C does not count.",
+  "ofac_reference": "https://ofac.treasury.gov/faqs/401",
+  "blocked_persons": [{"name": "X", "program": "example", "status": "blocked"}],
+  "stakes": [
+    {"owner": "X", "entity": "A", "pct": 50, "source": "FAQ 401 example 4"},
+    {"owner": "X", "entity": "B", "pct": 25, "source": "FAQ 401 example 4"},
+    {"owner": "A", "entity": "C", "pct": 25, "source": "FAQ 401 example 4"},
+    {"owner": "B", "entity": "C", "pct": 25, "source": "FAQ 401 example 4"}
+  ],
+  "expected": {"X": "blocked", "A": "blocked", "B": "not_blocked", "C": "not_blocked"}
+}

@@ -1,0 +1,13 @@
+{
+  "description": "FAQ 399: X owns 25% of A and Y owns another 25% of A. OFAC: A is blocked - stakes of persons blocked under DIFFERENT programs aggregate.",
+  "ofac_reference": "https://ofac.treasury.gov/faqs/399",
+  "blocked_persons": [
+    {"name": "X", "program": "program-one", "status": "blocked"},
+    {"name": "Y", "program": "program-two", "status": "blocked"}
+  ],
+  "stakes": [
+    {"owner": "X", "entity": "A", "pct": 25, "source": "FAQ 399"},
+    {"owner": "Y", "entity": "A", "pct": 25, "source": "FAQ 399"}
+  ],
+  "expected": {"X": "blocked", "Y": "blocked", "A": "blocked"}
+}

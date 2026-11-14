@@ -1,0 +1,12 @@
+{
+  "description": "Circular ownership: X owns 20% of A and 20% of B; A and B own 30% of each other. Building up from X leaves both unblocked; assuming them blocked holds them up. OFAC's guidance is silent, so the engine flags the disagreement instead of picking an answer.",
+  "ofac_reference": "https://ofac.treasury.gov/faqs/401",
+  "blocked_persons": [{"name": "X", "program": "example", "status": "blocked"}],
+  "stakes": [
+    {"owner": "X", "entity": "A", "pct": 20, "source": "worked example"},
+    {"owner": "X", "entity": "B", "pct": 20, "source": "worked example"},
+    {"owner": "A", "entity": "B", "pct": 30, "source": "worked example"},
+    {"owner": "B", "entity": "A", "pct": 30, "source": "worked example"}
+  ],
+  "expected": {"X": "blocked", "A": "indeterminate", "B": "indeterminate"}
+}
