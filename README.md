@@ -67,11 +67,19 @@ A tool that always answers "blocked" or "not blocked" is lying about its inputs.
 
 ![Unknown stakes](docs/img/unknown_stakes.svg)
 
-**Cycles.** OFAC's guidance is silent on circular ownership. X owns 20% of A and 20% of B; A and B own 30% of each other. Build up from the blocked person and neither clears 50%. Assume both are blocked and they hold each other up. The engine computes both fixed points and flags the disagreement instead of picking one:
+**Cycles.** The cited OFAC FAQ examples do not resolve this circular-ownership modelling case. X owns 20% of A and 20% of B; A and B own 30% of each other. Build up from the blocked person and neither clears 50%. Assume both are blocked and they hold each other up. The engine computes both fixed points and flags the disagreement instead of picking one:
 
 ![Circular ownership](docs/img/cycle_crossholdings.svg)
 
 **Bad input.** Stakes in one entity summing over 100%, duplicate edges between the same owner and entity, self-ownership, out-of-range percentages: rejected as input errors with exit code 2. A duplicate 30% stake is either a copy-paste or a second holding, and without provenance the engine cannot tell which - summing would say 60% (blocked), dedup would say 30% (not blocked). It refuses to choose for you.
+
+## Interpreting an answer
+
+`not_blocked` means only that the supplied graph does not establish blocking under this ownership calculation. It is **not permission to transact**. Other prohibitions, missing ownership relationships, current designations and program-specific terms still require review. This prototype does not fetch sanctions lists or establish that the input graph is complete.
+
+A non-blocking designation is not an exemption from ownership-based blocking. An entity identified under a Directive can still be blocked because of its owners. The engine evaluates that ownership separately and retains a note about the designation's separate terms.
+
+Unknown ownership can affect downstream entities even when their immediate stakes are known. Reported upper percentages are conservative scenario bounds, not measured ownership or probabilities. Circular-case fixed points are modelling diagnostics, not an OFAC legal ruling.
 
 ## Test vectors
 
