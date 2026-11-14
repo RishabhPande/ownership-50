@@ -20,7 +20,7 @@ What this module refuses to hide:
 
 * Unknown stakes. If missing data could flip an answer, the status is
   "indeterminate" with lower and upper bounds, never "not_blocked".
-* Cycles. The guidance is silent on circular ownership. The engine
+* Cycles. The cited FAQ examples do not settle every circular case. The engine
   computes both the least fixed point (build up from the seeds) and the
   greatest fixed point (assume everything blocked, remove what fails).
   Where they disagree, the status is "indeterminate" and flagged
@@ -34,6 +34,8 @@ What this module refuses to hide:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import math
+from numbers import Real
 
 THRESHOLD = 50.0
 EPS = 1e-9
@@ -95,10 +97,6 @@ def validate(stakes: list[Stake]) -> None:
     for s in stakes:
         if s.owner == s.entity:
             raise InputError(f"self-ownership edge: {s.owner!r} owns itself")
-        if s.pct is None:
-            continue
-        if not (0 < s.pct <= 100):
-            raise InputError(f"stake out of range (0, 100]: {s.owner!r} -> {s.entity!r} = {s.pct}")
         key = (s.owner, s.entity)
         if key in seen:
             prev = seen[key]
@@ -107,10 +105,16 @@ def validate(stakes: list[Stake]) -> None:
                 "without provenance the engine cannot tell a duplicate from a second holding; "
                 "de-duplicate the input or attach distinct sources and merge deliberately"
             )
+        if s.pct is not None and (
+            isinstance(s.pct, bool) or not isinstance(s.pct, Real)
+            or not math.isfinite(s.pct) or not (0 < s.pct <= 100)
+        ):
+            raise InputError(f"stake out of range (0, 100]: {s.owner!r} -> {s.entity!r} = {s.pct}")
         seen[key] = s
     totals: dict[str, float] = {}
     for s in seen.values():
-        totals[s.entity] = totals.get(s.entity, 0.0) + s.pct
+        if s.pct is not None:
+            totals[s.entity] = totals.get(s.entity, 0.0) + s.pct
     for entity, total in totals.items():
         if total > 100 + EPS:
             raise InputError(
@@ -196,20 +200,19 @@ def evaluate(seeds: list[Seed], stakes: list[Stake], compare_naive: bool = False
     results = {}
     for e in sorted(nodes):
         r = EntityResult(name=e, is_seed=e in seed_map)
-        if e in seed_map:
+        if e in applied:
             seed = seed_map[e]
-            if e in applied:
-                r.status = "blocked"
-                r.reasons.append(f"designated blocked person (program: {seed.program}, status: {seed.status})")
-            else:
-                r.status = "not_blocked"
-                r.reasons.append(
-                    f"designated with status {seed.status!r} (program: {seed.program}) - "
-                    "not treated as a blocked person under the 50 Percent Rule; "
-                    "its Directive or program terms apply separately"
-                )
+            r.status = "blocked"
+            r.reasons.append(f"designated blocked person (program: {seed.program}, status: {seed.status})")
             results[e] = r
             continue
+        if e in seed_map:
+            seed = seed_map[e]
+            r.reasons.append(
+                f"designated with status {seed.status!r} (program: {seed.program}) - "
+                "not treated as a blocked-person seed; ownership is evaluated separately, "
+                "and its Directive or program terms apply separately"
+            )
 
         known = [(o, p, s.source) for (o, ee, p), s in zip(edges0, stakes)
                  if ee == e and o in low and s.pct is not None]
@@ -218,9 +221,11 @@ def evaluate(seeds: list[Seed], stakes: list[Stake], compare_naive: bool = False
         unknown_in = [(o, ee) for (o, ee, p), s in zip(edges100, stakes)
                       if ee == e and s.pct is None and o in high]
         r.unknown_edges = sorted(unknown_in)
-        r.upper_pct = min(100.0, r.aggregate_pct + sum(
+        # Include known stakes held by possibly blocked owners too. Limiting
+        # this to direct unknown edges loses uncertainty propagated downstream.
+        r.upper_pct = min(100.0, sum(
             p for (o, ee, p) in edges100 if ee == e and o in high
-            and (o, ee) in set(r.unknown_edges)))
+        ))
 
         if e in low:
             r.status = "blocked"
@@ -240,7 +245,7 @@ def evaluate(seeds: list[Seed], stakes: list[Stake], compare_naive: bool = False
                 r.reasons.append(
                     "cycle-sensitive: building up from the blocked persons leaves it unblocked, "
                     "but assuming it blocked holds it up through circular stakes; "
-                    "OFAC's guidance is silent on circular ownership"
+                    "the cited FAQ examples do not settle this circular-ownership modelling case"
                 )
             unknown_relevant = [ue for ue in r.unknown_edges]
             if e not in gfp0 and unknown_relevant:
